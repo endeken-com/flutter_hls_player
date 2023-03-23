@@ -20,6 +20,7 @@ class _NormalPlayerPageState extends State<NormalPlayerPage> {
       fit: BoxFit.contain,
       autoPlay: true,
       looping: true,
+      fullScreenByDefault: true,
       deviceOrientationsAfterFullScreen: [
         DeviceOrientation.portraitDown,
         DeviceOrientation.portraitUp

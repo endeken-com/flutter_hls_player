@@ -15,6 +15,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.5
+  flutter_svg: 1.1.6
   wakelock: ^0.6.1+2
   meta: ^1.7.0
   flutter_widget_from_html_core: ^0.8.5+3
@@ -38,3 +39,14 @@ flutter:
         pluginClass: BetterPlayerPlugin
       ios:
         pluginClass: BetterPlayerPlugin
+
+
+  assets:
+    - assets/fullscreen.svg
+    - assets/subtitles.svg
+    - assets/play-fill.svg
+    - assets/pause.svg
+    - assets/backward-10-seconds.svg
+    - assets/forward-10-seconds.svg
+    - assets/volume-high.svg
+    - assets/volume-mute.svg

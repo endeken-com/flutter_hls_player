@@ -41,6 +41,7 @@ class WelcomePage extends StatefulWidget {
 class _WelcomePageState extends State<WelcomePage> {
   @override
   void initState() {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     _saveAssetSubtitleToFile();
     _saveAssetVideoToFile();
     _saveAssetEncryptVideoToFile();

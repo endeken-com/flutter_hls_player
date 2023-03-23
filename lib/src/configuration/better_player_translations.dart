@@ -15,18 +15,18 @@ class BetterPlayerTranslations {
   final String qualityAuto;
 
   BetterPlayerTranslations(
-      {this.languageCode = "en",
-      this.generalDefaultError = "Video can't be played",
+      {this.languageCode = "pt-br",
+      this.generalDefaultError = "Erro ao carregar o video",
       this.generalNone = "None",
-      this.generalDefault = "Default",
-      this.generalRetry = "Retry",
-      this.playlistLoadingNextVideo = "Loading next video",
+      this.generalDefault = "Padrão",
+      this.generalRetry = "Tentar Novamente",
+      this.playlistLoadingNextVideo = "Carregando",
       this.controlsLive = "LIVE",
       this.controlsNextVideoIn = "Next video in",
       this.overflowMenuPlaybackSpeed = "Playback speed",
-      this.overflowMenuSubtitles = "Subtitles",
-      this.overflowMenuQuality = "Quality",
-      this.overflowMenuAudioTracks = "Audio",
+      this.overflowMenuSubtitles = "Legenda",
+      this.overflowMenuQuality = "Resolução",
+      this.overflowMenuAudioTracks = "Áudio",
       this.qualityAuto = "Auto"});
 
   factory BetterPlayerTranslations.polish() => BetterPlayerTranslations(
