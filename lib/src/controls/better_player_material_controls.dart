@@ -97,12 +97,6 @@ class _BetterPlayerMaterialControlsState
           fit: StackFit.expand,
           children: [
             if (_wasLoading) Center(child: _buildLoadingWidget()),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: _buildTopBar(),
-            ),
             _buildBottomBar(),
             _buildNextVideoWidget(),
           ],
