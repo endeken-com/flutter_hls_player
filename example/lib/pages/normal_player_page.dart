@@ -30,7 +30,8 @@ class _NormalPlayerPageState extends State<NormalPlayerPage> {
       BetterPlayerDataSourceType.network,
       Constants.forBiggerBlazesUrl,
     );
-    _betterPlayerController = BetterPlayerController(betterPlayerConfiguration);
+    _betterPlayerController = BetterPlayerController(
+        betterPlayerConfiguration);
     _betterPlayerController.setupDataSource(_betterPlayerDataSource);
     super.initState();
   }
