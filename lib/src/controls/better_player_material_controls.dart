@@ -97,8 +97,8 @@ class _BetterPlayerMaterialControlsState
           fit: StackFit.expand,
           children: [
             if (_wasLoading) Center(child: _buildLoadingWidget()),
+            _buildReturnButton(),
             _buildBottomBar(),
-            _buildNextVideoWidget(),
           ],
         ),
       ),
@@ -285,7 +285,8 @@ class _BetterPlayerMaterialControlsState
             ),
           ),
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            width: MediaQuery.of(context).size.width,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -302,7 +303,7 @@ class _BetterPlayerMaterialControlsState
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        width: MediaQuery.of(context).size.width * .1,
+                        width: MediaQuery.of(context).size.width * .12,
                         child: Row(
                           children: [
                             if (_controlsConfiguration.enablePlayPause)
@@ -331,16 +332,102 @@ class _BetterPlayerMaterialControlsState
 
   Widget _buildSubtitleIcon() {
     return Container(
-      // child: InkWell(
-      //   onTap: () {},
-      //   child: Icon(
-      //     Icons.subtitles_outlined,
-      //     size: 32,
-      //     color: Colors.white,
-      //   ),
-      // ),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: InkWell(
+        onTap: () {},
+        child: Icon(
+          Icons.subtitles_outlined,
+          size: 31,
+          color: Colors.white,
+        ),
+      ),
     );
   }
+
+  // Widget _buildSubtitlesList() {
+  //   if (!_controller.subtitleListIsOpen) {
+  //     return Container();
+  //   } else {
+  //     return Positioned(
+  //       right: ScreenSize.getWidth(context) * .08,
+  //       bottom: ScreenSize.getWidth(context) * .06,
+  //       child: SingleChildScrollView(
+  //         child: Container(
+  //           alignment: Alignment.centerLeft,
+  //           padding: const EdgeInsets.only(top: 8, left: 8, bottom: 8),
+  //           width: MediaQuery.of(context).size.width * .25,
+  //           decoration: BoxDecoration(
+  //               color: Colors.black.withOpacity(0.7),
+  //               borderRadius: BorderRadius.circular(8)),
+  //           child: Column(
+  //             children: [
+  //               Container(
+  //                 padding: const EdgeInsets.only(bottom: 8, top: 4),
+  //                 child: const Text("Legendas/CC",
+  //                     style: TextStyle(
+  //                         fontWeight: FontWeight.bold, color: Colors.white)),
+  //               ),
+  //               Container(
+  //                 margin: const EdgeInsets.only(top: 4, bottom: 4),
+  //                 child: GestureDetector(
+  //                   onTap: () => _controller.disableSubtitles(),
+  //                   child: Row(
+  //                     children: [
+  //                       _controller.showSubtitles
+  //                           ? Container(
+  //                               width: MediaQuery.of(context).size.width * .03,
+  //                             )
+  //                           : const Icon(Icons.check, color: Colors.white),
+  //                       Container(
+  //                         margin: const EdgeInsets.only(left: 4, right: 4),
+  //                         child: Text(
+  //                           "Desligadas",
+  //                           style: TextStyle(
+  //                             fontSize: 14,
+  //                             color: _controller.showSubtitles
+  //                                 ? Colors.grey
+  //                                 : Colors.white,
+  //                           ),
+  //                         ),
+  //                       )
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ),
+  //               Container(
+  //                 margin: const EdgeInsets.only(top: 4, bottom: 4),
+  //                 child: GestureDetector(
+  //                   onTap: () {},
+  //                   child: Row(
+  //                     children: [
+  //                       _controller.showSubtitles
+  //                           ? const Icon(Icons.check, color: Colors.white)
+  //                           : Container(
+  //                               width: MediaQuery.of(context).size.width * .03,
+  //                             ),
+  //                       Container(
+  //                         margin: const EdgeInsets.only(left: 4, right: 4),
+  //                         child: Text(
+  //                           "Português (Brasil)",
+  //                           style: TextStyle(
+  //                             fontSize: 14,
+  //                             color: _betterPlayerController.betterPlayerSubtitlesSource.
+  //                                 ? Colors.white
+  //                                 : Colors.grey,
+  //                           ),
+  //                         ),
+  //                       )
+  //                     ],
+  //                   ),
+  //                 ),
+  //               )
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //     );
+  //   }
+  // }
 
   Widget _buildVolumeSlider() {
     return Positioned(
@@ -709,7 +796,7 @@ class _BetterPlayerMaterialControlsState
       flex: 40,
       child: Container(
         alignment: Alignment.bottomCenter,
-        margin: const EdgeInsets.symmetric(horizontal: 8),
+        margin: const EdgeInsets.only(left: 8, right: 16),
         child: BetterPlayerMaterialVideoProgressBar(
           _controller,
           _betterPlayerController,
@@ -736,6 +823,36 @@ class _BetterPlayerMaterialControlsState
   void _onPlayerHide() {
     _betterPlayerController!.toggleControlsVisibility(!controlsNotVisible);
     widget.onControlsVisibilityChanged(!controlsNotVisible);
+  }
+
+  Widget _buildReturnButton() {
+    if (!betterPlayerController!.controlsEnabled) {
+      return const SizedBox();
+    }
+
+    return Positioned(
+      top: MediaQuery.of(context).size.height * .1,
+      left: MediaQuery.of(context).size.width * .034,
+      child: AnimatedOpacity(
+        opacity: controlsNotVisible ? 0.0 : 1.0,
+        duration: _controlsConfiguration.controlsHideTime,
+        onEnd: _onPlayerHide,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          child: InkWell(
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },
+            child: Icon(
+              Icons.arrow_back_ios,
+              size: 28,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget? _buildLoadingWidget() {

@@ -30,8 +30,7 @@ class _NormalPlayerPageState extends State<NormalPlayerPage> {
       BetterPlayerDataSourceType.network,
       Constants.forBiggerBlazesUrl,
     );
-    _betterPlayerController = BetterPlayerController(
-        betterPlayerConfiguration);
+    _betterPlayerController = BetterPlayerController(betterPlayerConfiguration);
     _betterPlayerController.setupDataSource(_betterPlayerDataSource);
     super.initState();
   }
@@ -44,7 +43,6 @@ class _NormalPlayerPageState extends State<NormalPlayerPage> {
       ),
       body: Column(
         children: [
-          const SizedBox(height: 8),
           AspectRatio(
             aspectRatio: 16 / 9,
             child: BetterPlayer(controller: _betterPlayerController),
