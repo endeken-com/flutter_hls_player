@@ -262,13 +262,15 @@ class BetterPlayerController {
           .addAll(betterPlayerDataSource.subtitles!);
     }
 
-    if (_isDataSourceAsms(betterPlayerDataSource)) {
-      _setupAsmsDataSource(betterPlayerDataSource).then((dynamic value) {
-        _setupSubtitles();
-      });
-    } else {
-      _setupSubtitles();
-    }
+    _setupSubtitles();
+
+    // if (_isDataSourceAsms(betterPlayerDataSource)) {
+    //   _setupAsmsDataSource(betterPlayerDataSource).then((dynamic value) {
+    //     _setupSubtitles();
+    //   });
+    // } else {
+    //   _setupSubtitles();
+    // }
 
     ///Process data source
     await _setupDataSource(betterPlayerDataSource);
@@ -793,9 +795,9 @@ class BetterPlayerController {
       videoPlayerController?.refresh();
     }
 
-    if (_betterPlayerSubtitlesSource?.asmsIsSegmented == true) {
-      _loadAsmsSubtitlesSegments(currentVideoPlayerValue.position);
-    }
+    // if (_betterPlayerSubtitlesSource?.asmsIsSegmented == true) {
+    //   _loadAsmsSubtitlesSegments(currentVideoPlayerValue.position);
+    // }
 
     final int now = DateTime.now().millisecondsSinceEpoch;
     if (now - _lastPositionSelection > 500) {
