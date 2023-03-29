@@ -20,6 +20,8 @@ abstract class BetterPlayerControlsState<T extends StatefulWidget>
   VideoPlayerValue? get latestValue;
 
   bool controlsNotVisible = true;
+  bool volumeSliderNotVisible = true;
+  bool subtitleModalNotVisible = true;
 
   void cancelAndRestartTimer();
 
@@ -519,10 +521,24 @@ abstract class BetterPlayerControlsState<T extends StatefulWidget>
   void changePlayerControlsNotVisible(bool notVisible) {
     setState(() {
       if (notVisible) {
+        volumeSliderNotVisible = true;
+        subtitleModalNotVisible = true;
         betterPlayerController?.postEvent(
             BetterPlayerEvent(BetterPlayerEventType.controlsHiddenStart));
       }
       controlsNotVisible = notVisible;
+    });
+  }
+
+  void changeVolumeSliderControlsNotVisible(bool notVisible) {
+    setState(() {
+      volumeSliderNotVisible = notVisible;
+    });
+  }
+
+  void changeSubtitleModalControlsNotVisible(bool notVisible) {
+    setState(() {
+      subtitleModalNotVisible = notVisible;
     });
   }
 }

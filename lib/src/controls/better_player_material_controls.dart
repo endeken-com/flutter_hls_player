@@ -34,7 +34,7 @@ class BetterPlayerMaterialControls extends StatefulWidget {
 class _BetterPlayerMaterialControlsState
     extends BetterPlayerControlsState<BetterPlayerMaterialControls> {
   VideoPlayerValue? _latestValue;
-  double? _latestVolume;
+  double _latestVolume = 0.5;
   Timer? _hideTimer;
   Timer? _initTimer;
   Timer? _showAfterExpandCollapseTimer;
@@ -99,6 +99,8 @@ class _BetterPlayerMaterialControlsState
             if (_wasLoading) Center(child: _buildLoadingWidget()),
             _buildReturnButton(),
             _buildBottomBar(),
+            _buildVolumeSlider(),
+            _buildSubtitlesList()
           ],
         ),
       ),
@@ -334,7 +336,10 @@ class _BetterPlayerMaterialControlsState
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          cancelAndRestartTimer();
+          changeSubtitleModalControlsNotVisible(!subtitleModalNotVisible);
+        },
         child: Icon(
           Icons.subtitles_outlined,
           size: 31,
@@ -344,155 +349,80 @@ class _BetterPlayerMaterialControlsState
     );
   }
 
-  // Widget _buildSubtitlesList() {
-  //   if (!_controller.subtitleListIsOpen) {
-  //     return Container();
-  //   } else {
-  //     return Positioned(
-  //       right: ScreenSize.getWidth(context) * .08,
-  //       bottom: ScreenSize.getWidth(context) * .06,
-  //       child: SingleChildScrollView(
-  //         child: Container(
-  //           alignment: Alignment.centerLeft,
-  //           padding: const EdgeInsets.only(top: 8, left: 8, bottom: 8),
-  //           width: MediaQuery.of(context).size.width * .25,
-  //           decoration: BoxDecoration(
-  //               color: Colors.black.withOpacity(0.7),
-  //               borderRadius: BorderRadius.circular(8)),
-  //           child: Column(
-  //             children: [
-  //               Container(
-  //                 padding: const EdgeInsets.only(bottom: 8, top: 4),
-  //                 child: const Text("Legendas/CC",
-  //                     style: TextStyle(
-  //                         fontWeight: FontWeight.bold, color: Colors.white)),
-  //               ),
-  //               Container(
-  //                 margin: const EdgeInsets.only(top: 4, bottom: 4),
-  //                 child: GestureDetector(
-  //                   onTap: () => _controller.disableSubtitles(),
-  //                   child: Row(
-  //                     children: [
-  //                       _controller.showSubtitles
-  //                           ? Container(
-  //                               width: MediaQuery.of(context).size.width * .03,
-  //                             )
-  //                           : const Icon(Icons.check, color: Colors.white),
-  //                       Container(
-  //                         margin: const EdgeInsets.only(left: 4, right: 4),
-  //                         child: Text(
-  //                           "Desligadas",
-  //                           style: TextStyle(
-  //                             fontSize: 14,
-  //                             color: _controller.showSubtitles
-  //                                 ? Colors.grey
-  //                                 : Colors.white,
-  //                           ),
-  //                         ),
-  //                       )
-  //                     ],
-  //                   ),
-  //                 ),
-  //               ),
-  //               Container(
-  //                 margin: const EdgeInsets.only(top: 4, bottom: 4),
-  //                 child: GestureDetector(
-  //                   onTap: () {},
-  //                   child: Row(
-  //                     children: [
-  //                       _controller.showSubtitles
-  //                           ? const Icon(Icons.check, color: Colors.white)
-  //                           : Container(
-  //                               width: MediaQuery.of(context).size.width * .03,
-  //                             ),
-  //                       Container(
-  //                         margin: const EdgeInsets.only(left: 4, right: 4),
-  //                         child: Text(
-  //                           "Português (Brasil)",
-  //                           style: TextStyle(
-  //                             fontSize: 14,
-  //                             color: _betterPlayerController.betterPlayerSubtitlesSource.
-  //                                 ? Colors.white
-  //                                 : Colors.grey,
-  //                           ),
-  //                         ),
-  //                       )
-  //                     ],
-  //                   ),
-  //                 ),
-  //               )
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //     );
-  //   }
-  // }
-
-  Widget _buildVolumeSlider() {
-    return Positioned(
-      child: SingleChildScrollView(
-        child: RotatedBox(
-          quarterTurns: 3,
+  Widget _buildSubtitlesList() {
+    if (subtitleModalNotVisible) {
+      return Container();
+    } else {
+      return Positioned(
+        bottom: MediaQuery.of(context).size.height * .16,
+        right: MediaQuery.of(context).size.width * .04,
+        child: SingleChildScrollView(
           child: Container(
             alignment: Alignment.centerLeft,
-            width: MediaQuery.of(context).size.width * .20,
+            padding: const EdgeInsets.only(top: 8, left: 8, bottom: 8),
+            width: MediaQuery.of(context).size.width * .25,
             decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.7),
                 borderRadius: BorderRadius.circular(8)),
-            child: Slider(
-              value: 0,
-              min: 0,
-              max: 1.8,
-              inactiveColor: Colors.grey.withOpacity(0.6),
-              activeColor: Colors.white,
-              onChanged: (volume) {
-                setState(() {});
-              },
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.only(bottom: 8, top: 4),
+                  child: const Text("Legendas/CC",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.white)),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(top: 4, bottom: 4),
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: Row(
+                      children: [
+                         Container(
+                                width: MediaQuery.of(context).size.width * .03,
+                              ),
+                        Container(
+                          margin: const EdgeInsets.only(left: 4, right: 4),
+                          child: Text(
+                            "Desligadas",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color:  Colors.grey
+                                  ,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(top: 4, bottom: 4),
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: Row(
+                      children: [
+                             const Icon(Icons.check, color: Colors.white),
+                        Container(
+                          margin: const EdgeInsets.only(left: 4, right: 4),
+                          child: Text(
+                            "Português (Brasil)",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color:  Colors.white,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildHitArea() {
-    if (!betterPlayerController!.controlsEnabled) {
-      return const SizedBox();
+      );
     }
-    return Container(
-      child: Center(
-        child: AnimatedOpacity(
-          opacity: controlsNotVisible ? 0.0 : 1.0,
-          duration: _controlsConfiguration.controlsHideTime,
-          child: _buildMiddleRow(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMiddleRow() {
-    return Container(
-      color: _controlsConfiguration.controlBarColor,
-      width: double.infinity,
-      height: double.infinity,
-      child: _betterPlayerController?.isLiveStream() == true
-          ? const SizedBox()
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                if (_controlsConfiguration.enableSkips)
-                  Expanded(child: _buildSkipButton())
-                else
-                  const SizedBox(),
-                Expanded(child: _buildReplayButton(_controller!)),
-                if (_controlsConfiguration.enableSkips)
-                  Expanded(child: _buildForwardButton())
-                else
-                  const SizedBox(),
-              ],
-            ),
-    );
   }
 
   Widget _buildHitAreaClickableButton(
@@ -516,28 +446,6 @@ class _BetterPlayerMaterialControlsState
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSkipButton() {
-    return _buildHitAreaClickableButton(
-      icon: Icon(
-        _controlsConfiguration.skipBackIcon,
-        size: 24,
-        color: _controlsConfiguration.iconsColor,
-      ),
-      onClicked: skipBack,
-    );
-  }
-
-  Widget _buildForwardButton() {
-    return _buildHitAreaClickableButton(
-      icon: Icon(
-        _controlsConfiguration.skipForwardIcon,
-        size: 24,
-        color: _controlsConfiguration.iconsColor,
-      ),
-      onClicked: skipForward,
     );
   }
 
@@ -576,55 +484,13 @@ class _BetterPlayerMaterialControlsState
     );
   }
 
-  Widget _buildNextVideoWidget() {
-    return StreamBuilder<int?>(
-      stream: _betterPlayerController!.nextVideoTimeStream,
-      builder: (context, snapshot) {
-        final time = snapshot.data;
-        if (time != null && time > 0) {
-          return BetterPlayerMaterialClickableWidget(
-            onTap: () {
-              _betterPlayerController!.playNextVideo();
-            },
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: Container(
-                margin: EdgeInsets.only(
-                    bottom: _controlsConfiguration.controlBarHeight + 20,
-                    right: 24),
-                decoration: BoxDecoration(
-                  color: _controlsConfiguration.controlBarColor,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Text(
-                    "${_betterPlayerController!.translations.controlsNextVideoIn} $time...",
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
-          );
-        } else {
-          return const SizedBox();
-        }
-      },
-    );
-  }
-
   Widget _buildMuteButton(
     VideoPlayerController? controller,
   ) {
     return BetterPlayerMaterialClickableWidget(
       onTap: () {
         cancelAndRestartTimer();
-        if (_latestValue!.volume == 0) {
-          _betterPlayerController!.setVolume(_latestVolume ?? 0.5);
-        } else {
-          _latestVolume = controller!.value.volume;
-          _betterPlayerController!.setVolume(0.0);
-        }
+        changeVolumeSliderControlsNotVisible(!volumeSliderNotVisible);
       },
       child: AnimatedOpacity(
         opacity: controlsNotVisible ? 0.0 : 1.0,
@@ -638,7 +504,41 @@ class _BetterPlayerMaterialControlsState
                   ? Icons.volume_up_sharp
                   : _controlsConfiguration.unMuteIcon,
               color: _controlsConfiguration.iconsColor,
-              size: 32,
+              size: MediaQuery.of(context).orientation == Orientation.portrait ? 16 : 32,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVolumeSlider() {
+    return Positioned(
+      height: MediaQuery.of(context).size.height * .4,
+      bottom: MediaQuery.of(context).size.height * .16,
+      left: MediaQuery.of(context).size.width * .1,
+      child: AnimatedOpacity(
+        opacity: volumeSliderNotVisible ? 0.0 : 1.0,
+        duration: _controlsConfiguration.controlsHideTime,
+        child: RotatedBox(
+          quarterTurns: 3,
+          child: Container(
+            alignment: Alignment.centerLeft,
+            width: MediaQuery.of(context).size.width * .20,
+            decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(8)),
+            child: Slider(
+              value: _latestVolume,
+              min: 0,
+              max: 1.0,
+              inactiveColor: Colors.grey.withOpacity(0.6),
+              activeColor: Colors.white,
+              onChanged: (volume) {
+                _betterPlayerController!.setVolume(volume);
+                _latestVolume = _betterPlayerController!.videoPlayerController!.value.volume;
+                setState(() {});
+              },
             ),
           ),
         ),
@@ -831,8 +731,8 @@ class _BetterPlayerMaterialControlsState
     }
 
     return Positioned(
-      top: MediaQuery.of(context).size.height * .1,
-      left: MediaQuery.of(context).size.width * .034,
+      top: MediaQuery.of(context).size.height * .05,
+      left: MediaQuery.of(context).size.width * .026,
       child: AnimatedOpacity(
         opacity: controlsNotVisible ? 0.0 : 1.0,
         duration: _controlsConfiguration.controlsHideTime,
@@ -841,6 +741,7 @@ class _BetterPlayerMaterialControlsState
           margin: const EdgeInsets.symmetric(horizontal: 16),
           child: InkWell(
             onTap: () {
+              dispose();
               Navigator.of(context).pop();
               Navigator.of(context).pop();
             },
