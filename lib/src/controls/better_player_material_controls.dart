@@ -101,6 +101,24 @@ class _BetterPlayerMaterialControlsState
           fit: StackFit.expand,
           children: [
             if (_wasLoading) Center(child: _buildLoadingWidget()),
+            Align(
+              alignment: Alignment.topCenter,
+              child: AnimatedOpacity(
+                opacity: controlsNotVisible ? 0.0 : 0.8,
+                duration: _controlsConfiguration.controlsHideTime,
+                child: Container(
+                  height: _controlsConfiguration.controlBarHeight + 80.0,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.black, Colors.transparent],
+                      stops: [0, 0.90],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+              ),
+            ),
             _buildReturnButton(),
             _buildBottomBar(),
             _buildVolumeSlider(),
@@ -402,16 +420,13 @@ class _BetterPlayerMaterialControlsState
     List<Widget> subtitleOptions = [];
 
     for (BetterPlayerSubtitlesSource subtitlesSource in subtitlesSourceList) {
-
       final selectedSourceType =
           betterPlayerController!.betterPlayerSubtitlesSource;
       final bool isSelected = (subtitlesSource == selectedSourceType) ||
           (subtitlesSource.type == BetterPlayerSubtitlesSourceType.none &&
               subtitlesSource.type == selectedSourceType!.type);
 
-
-
-      subtitleOptions.add( Container(
+      subtitleOptions.add(Container(
         margin: const EdgeInsets.only(top: 4, bottom: 4),
         child: GestureDetector(
           onTap: () {
@@ -429,7 +444,8 @@ class _BetterPlayerMaterialControlsState
                 margin: const EdgeInsets.only(left: 4, right: 4),
                 child: Text(
                   subtitlesSource.type == BetterPlayerSubtitlesSourceType.none
-                      ? "Desligadas" : "Português (Brasil)",
+                      ? "Desligadas"
+                      : "Português (Brasil)",
                   style: TextStyle(
                     fontSize: 14,
                     color: isSelected ? Colors.white : Colors.grey,
