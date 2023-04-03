@@ -7,10 +7,14 @@ import 'package:better_player/src/controls/better_player_multiple_gesture_detect
 import 'package:better_player/src/controls/better_player_progress_colors.dart';
 import 'package:better_player/src/core/better_player_controller.dart';
 import 'package:better_player/src/core/better_player_utils.dart';
+import 'package:better_player/src/subtitles/better_player_subtitles_source_type.dart';
 import 'package:better_player/src/video_player/video_player.dart';
+import 'package:collection/collection.dart';
 
 // Flutter imports:
 import 'package:flutter/material.dart';
+
+import '../subtitles/better_player_subtitles_source.dart';
 
 class BetterPlayerMaterialControls extends StatefulWidget {
   ///Callback used to send information if player bar is hidden or not
@@ -100,7 +104,7 @@ class _BetterPlayerMaterialControlsState
             _buildReturnButton(),
             _buildBottomBar(),
             _buildVolumeSlider(),
-            _buildSubtitlesList()
+            _showSubtitlesListModal()
           ],
         ),
       ),
@@ -349,10 +353,20 @@ class _BetterPlayerMaterialControlsState
     );
   }
 
-  Widget _buildSubtitlesList() {
+  Widget _showSubtitlesListModal() {
     if (subtitleModalNotVisible) {
       return Container();
     } else {
+      final subtitles =
+          List.of(betterPlayerController!.betterPlayerSubtitlesSourceList);
+      final noneSubtitlesElementExists = subtitles.firstWhereOrNull((source) =>
+              source.type == BetterPlayerSubtitlesSourceType.none) !=
+          null;
+      if (!noneSubtitlesElementExists) {
+        subtitles.add(BetterPlayerSubtitlesSource(
+            type: BetterPlayerSubtitlesSourceType.none));
+      }
+
       return Positioned(
         bottom: MediaQuery.of(context).size.height * .16,
         right: MediaQuery.of(context).size.width * .04,
@@ -372,50 +386,8 @@ class _BetterPlayerMaterialControlsState
                       style: TextStyle(
                           fontWeight: FontWeight.bold, color: Colors.white)),
                 ),
-                Container(
-                  margin: const EdgeInsets.only(top: 4, bottom: 4),
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: Row(
-                      children: [
-                         Container(
-                                width: MediaQuery.of(context).size.width * .03,
-                              ),
-                        Container(
-                          margin: const EdgeInsets.only(left: 4, right: 4),
-                          child: Text(
-                            "Desligadas",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color:  Colors.grey
-                                  ,
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 4, bottom: 4),
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: Row(
-                      children: [
-                             const Icon(Icons.check, color: Colors.white),
-                        Container(
-                          margin: const EdgeInsets.only(left: 4, right: 4),
-                          child: Text(
-                            "Português (Brasil)",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color:  Colors.white,
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
+                Column(
+                  children: _buildSubtitleOptions(subtitles),
                 )
               ],
             ),
@@ -423,6 +395,54 @@ class _BetterPlayerMaterialControlsState
         ),
       );
     }
+  }
+
+  List<Widget> _buildSubtitleOptions(
+      List<BetterPlayerSubtitlesSource> subtitlesSourceList) {
+    List<Widget> subtitleOptions = [];
+
+    for (BetterPlayerSubtitlesSource subtitlesSource in subtitlesSourceList) {
+
+      final selectedSourceType =
+          betterPlayerController!.betterPlayerSubtitlesSource;
+      final bool isSelected = (subtitlesSource == selectedSourceType) ||
+          (subtitlesSource.type == BetterPlayerSubtitlesSourceType.none &&
+              subtitlesSource.type == selectedSourceType!.type);
+
+
+
+      subtitleOptions.add( Container(
+        margin: const EdgeInsets.only(top: 4, bottom: 4),
+        child: GestureDetector(
+          onTap: () {
+            betterPlayerController!.setupSubtitleSource(subtitlesSource);
+          },
+          child: Row(
+            children: [
+              Visibility(
+                  visible: isSelected,
+                  child: Icon(
+                    Icons.check_outlined,
+                    color: isSelected ? Colors.white : Colors.transparent,
+                  )),
+              Container(
+                margin: const EdgeInsets.only(left: 4, right: 4),
+                child: Text(
+                  subtitlesSource.type == BetterPlayerSubtitlesSourceType.none
+                      ? "Desligadas" : "Português (Brasil)",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isSelected ? Colors.white : Colors.grey,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ));
+    }
+
+    return subtitleOptions;
   }
 
   Widget _buildHitAreaClickableButton(
@@ -504,7 +524,9 @@ class _BetterPlayerMaterialControlsState
                   ? Icons.volume_up_sharp
                   : _controlsConfiguration.unMuteIcon,
               color: _controlsConfiguration.iconsColor,
-              size: MediaQuery.of(context).orientation == Orientation.portrait ? 16 : 32,
+              size: MediaQuery.of(context).orientation == Orientation.portrait
+                  ? 16
+                  : 32,
             ),
           ),
         ),
@@ -536,7 +558,8 @@ class _BetterPlayerMaterialControlsState
               activeColor: Colors.white,
               onChanged: (volume) {
                 _betterPlayerController!.setVolume(volume);
-                _latestVolume = _betterPlayerController!.videoPlayerController!.value.volume;
+                _latestVolume = _betterPlayerController!
+                    .videoPlayerController!.value.volume;
                 setState(() {});
               },
             ),
