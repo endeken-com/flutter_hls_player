@@ -606,13 +606,17 @@ class _BetterPlayerMaterialControlsState
         duration: _controlsConfiguration.controlsHideTime,
         onEnd: _onPlayerHide,
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          child: AirPlayRoutePickerView(
-            height: 48,
-            width: 48,
-            tintColor: Colors.white,
-            activeTintColor: Colors.white,
-            backgroundColor: Colors.transparent,
+          child: Stack(
+            children: [
+              Icon(Icons.airplay_outlined, color: Colors.white),
+              AirPlayRoutePickerView(
+                height: 48,
+                width: 48,
+                tintColor: Colors.transparent,
+                activeTintColor: Colors.transparent,
+                backgroundColor: Colors.transparent,
+              ),
+            ],
           ),
         ),
       ),
