@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:better_player/src/configuration/better_player_controls_configuration.dart';
 import 'package:better_player/src/controls/better_player_clickable_widget.dart';
 import 'package:better_player/src/controls/better_player_controls_state.dart';
@@ -13,6 +14,8 @@ import 'package:collection/collection.dart';
 
 // Flutter imports:
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_to_airplay/flutter_to_airplay.dart';
 
 import '../subtitles/better_player_subtitles_source.dart';
 
@@ -107,7 +110,7 @@ class _BetterPlayerMaterialControlsState
                 opacity: controlsNotVisible ? 0.0 : 0.8,
                 duration: _controlsConfiguration.controlsHideTime,
                 child: Container(
-                  height: _controlsConfiguration.controlBarHeight + 80.0,
+                  height: _controlsConfiguration.controlBarHeight + 60.0,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [Colors.black, Colors.transparent],
@@ -120,6 +123,7 @@ class _BetterPlayerMaterialControlsState
               ),
             ),
             _buildReturnButton(),
+            _buildIosAirPlayButton(),
             _buildBottomBar(),
             _buildVolumeSlider(),
             _showSubtitlesListModal()
@@ -541,8 +545,8 @@ class _BetterPlayerMaterialControlsState
                   : _controlsConfiguration.unMuteIcon,
               color: _controlsConfiguration.iconsColor,
               size: MediaQuery.of(context).orientation == Orientation.portrait
-                  ? 16
-                  : 32,
+                  ? 114
+                  : 30,
             ),
           ),
         ),
@@ -585,6 +589,36 @@ class _BetterPlayerMaterialControlsState
     );
   }
 
+  Widget _buildIosAirPlayButton() {
+    if (!betterPlayerController!.controlsEnabled) {
+      return const SizedBox();
+    }
+
+    if (Platform.isAndroid) {
+      return const SizedBox();
+    }
+
+    return Positioned(
+      top: MediaQuery.of(context).size.height * .02,
+      right: MediaQuery.of(context).size.width * .024,
+      child: AnimatedOpacity(
+        opacity: controlsNotVisible ? 0.0 : 1.0,
+        duration: _controlsConfiguration.controlsHideTime,
+        onEnd: _onPlayerHide,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          child: AirPlayRoutePickerView(
+            height: 48,
+            width: 48,
+            tintColor: Colors.white,
+            activeTintColor: Colors.white,
+            backgroundColor: Colors.transparent,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildPlayPause(VideoPlayerController controller) {
     return BetterPlayerMaterialClickableWidget(
       key: const Key("better_player_material_controls_play_pause_button"),
@@ -595,7 +629,7 @@ class _BetterPlayerMaterialControlsState
         child: Icon(
           controller.value.isPlaying ? Icons.pause : Icons.play_arrow_rounded,
           color: _controlsConfiguration.iconsColor,
-          size: MediaQuery.of(context).size.width * .05,
+          size: MediaQuery.of(context).size.width * .045,
         ),
       ),
     );
@@ -665,17 +699,6 @@ class _BetterPlayerMaterialControlsState
       if (!controlsNotVisible) {
         cancelAndRestartTimer();
       }
-    });
-  }
-
-  void _onExpandCollapse() {
-    changePlayerControlsNotVisible(true);
-    _betterPlayerController!.toggleFullScreen();
-    _showAfterExpandCollapseTimer =
-        Timer(_controlsConfiguration.controlsHideTime, () {
-      setState(() {
-        cancelAndRestartTimer();
-      });
     });
   }
 
@@ -784,11 +807,7 @@ class _BetterPlayerMaterialControlsState
               Navigator.of(context).pop();
               Navigator.of(context).pop();
             },
-            child: Icon(
-              Icons.arrow_back_ios,
-              size: 28,
-              color: Colors.white,
-            ),
+            child: Icon(Icons.arrow_back_ios, size: 28, color: Colors.white),
           ),
         ),
       ),

@@ -93,6 +93,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_to_airplay:
+    dependency: "direct main"
+    description:
+      name: flutter_to_airplay
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.4"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
