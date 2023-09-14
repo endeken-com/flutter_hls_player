@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:better_player/better_player.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +17,7 @@ class BetterPlayerControlsConfiguration {
   final String directorsName;
 
   /// Function after player closes
-  final Function()? onPlayerCloses;
+  final Function(double currentTime)? onPlayerCloses;
 
   /// Color of the control bars
   final Color controlBarColor;

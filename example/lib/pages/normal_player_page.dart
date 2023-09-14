@@ -23,6 +23,9 @@ class _NormalPlayerPageState extends State<NormalPlayerPage> {
       looping: true,
       controlsConfiguration: BetterPlayerControlsConfiguration(
         movieName: "AAAAAAAAAA AAAAAAAAAAAA AAAAAAAA AAAA ",
+        onPlayerCloses: (currentTime) {
+          print(currentTime);
+        },
         directorsName: "Brasília verde água",
         progressBarPlayedColor: Color(0xffbbfa34),
         closeButtonIcon: SvgPicture.asset("assets/close-button.svg",

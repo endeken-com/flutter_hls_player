@@ -214,7 +214,7 @@ class _BetterPlayerMaterialControlsState
                 Row(
                   children: [
                     _buildIosAirPlayButton(),
-                    _buildClosePlayerButton()
+                    _buildClosePlayerButton(),
                   ],
                 )
               ],
@@ -238,11 +238,7 @@ class _BetterPlayerMaterialControlsState
       child: Stack(
         children: [
           Center(
-            child: Icon(
-              Icons.airplay_outlined,
-              color: Colors.white,
-              size: 26,
-            ),
+            child: Icon(Icons.airplay_outlined, color: Colors.white, size: 26),
           ),
           GestureDetector(
             child: AirPlayRoutePickerView(
@@ -266,10 +262,15 @@ class _BetterPlayerMaterialControlsState
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: InkWell(
-        onTap: () {
+        onTap: () async {
+          if (_controlsConfiguration.onPlayerCloses != null) {
+            Duration? endTime = await _controller!.position;
+            _controlsConfiguration
+                .onPlayerCloses!(endTime?.inSeconds.toDouble() ?? 0.0);
+          }
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
           dispose();
-          Navigator.of(context).pop();
-          Navigator.of(context).pop();
         },
         child: SvgPicture.asset(
           "assets/close-button.svg",
