@@ -2,6 +2,7 @@ import 'package:better_player/better_player.dart';
 import 'package:better_player_example/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class NormalPlayerPage extends StatefulWidget {
   @override
@@ -20,6 +21,13 @@ class _NormalPlayerPageState extends State<NormalPlayerPage> {
       fit: BoxFit.contain,
       autoPlay: true,
       looping: true,
+      controlsConfiguration: BetterPlayerControlsConfiguration(
+        movieName: "AAAAAAAAAA AAAAAAAAAAAA AAAAAAAA AAAA ",
+        directorsName: "Brasília verde água",
+        progressBarPlayedColor: Color(0xffbbfa34),
+        closeButtonIcon: SvgPicture.asset("assets/close-button.svg",
+            color: Colors.white, height: 8, width: 8, fit: BoxFit.fitWidth),
+      ),
       fullScreenByDefault: true,
       deviceOrientationsAfterFullScreen: [
         DeviceOrientation.portraitDown,

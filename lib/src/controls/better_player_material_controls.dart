@@ -7,7 +7,6 @@ import 'package:better_player/src/controls/better_player_material_progress_bar.d
 import 'package:better_player/src/controls/better_player_multiple_gesture_detector.dart';
 import 'package:better_player/src/controls/better_player_progress_colors.dart';
 import 'package:better_player/src/core/better_player_controller.dart';
-import 'package:better_player/src/core/better_player_utils.dart';
 import 'package:better_player/src/subtitles/better_player_subtitles_source_type.dart';
 import 'package:better_player/src/video_player/video_player.dart';
 import 'package:collection/collection.dart';
@@ -15,6 +14,7 @@ import 'package:collection/collection.dart';
 // Flutter imports:
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:flutter_to_airplay/flutter_to_airplay.dart';
 
 import '../subtitles/better_player_subtitles_source.dart';
@@ -122,9 +122,27 @@ class _BetterPlayerMaterialControlsState
                 ),
               ),
             ),
-            _buildReturnButton(),
-            _buildIosAirPlayButton(),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: AnimatedOpacity(
+                opacity: controlsNotVisible ? 0.0 : 0.8,
+                duration: _controlsConfiguration.controlsHideTime,
+                child: Container(
+                  height: _controlsConfiguration.controlBarHeight + 50.0,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.transparent, Colors.black],
+                      stops: [0, 0.99],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            _buildTopBar(),
             _buildBottomBar(),
+            _buildPlayPauseButton(_controller!),
             _buildVolumeSlider(),
             _showSubtitlesListModal()
           ],
@@ -133,160 +151,156 @@ class _BetterPlayerMaterialControlsState
     );
   }
 
-  @override
-  void dispose() {
-    _dispose();
-    super.dispose();
-  }
-
-  void _dispose() {
-    _controller?.removeListener(_updateState);
-    _hideTimer?.cancel();
-    _initTimer?.cancel();
-    _showAfterExpandCollapseTimer?.cancel();
-    _controlsVisibilityStreamSubscription?.cancel();
-  }
-
-  @override
-  void didChangeDependencies() {
-    final _oldController = _betterPlayerController;
-    _betterPlayerController = BetterPlayerController.of(context);
-    _controller = _betterPlayerController!.videoPlayerController;
-    _latestValue = _controller!.value;
-
-    if (_oldController != _betterPlayerController) {
-      _dispose();
-      _initialize();
-    }
-
-    super.didChangeDependencies();
-  }
-
-  Widget _buildErrorWidget() {
-    final errorBuilder =
-        _betterPlayerController!.betterPlayerConfiguration.errorBuilder;
-    if (errorBuilder != null) {
-      return errorBuilder(
-          context,
-          _betterPlayerController!
-              .videoPlayerController!.value.errorDescription);
-    } else {
-      final textStyle = TextStyle(color: _controlsConfiguration.textColor);
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.warning,
-              color: _controlsConfiguration.iconsColor,
-              size: 42,
-            ),
-            Text(
-              _betterPlayerController!.translations.generalDefaultError,
-              style: textStyle,
-            ),
-            if (_controlsConfiguration.enableRetry)
-              TextButton(
-                onPressed: () {
-                  _betterPlayerController!.retryDataSource();
-                },
-                child: Text(
-                  _betterPlayerController!.translations.generalRetry,
-                  style: textStyle.copyWith(fontWeight: FontWeight.bold),
-                ),
-              )
-          ],
-        ),
-      );
-    }
-  }
-
   Widget _buildTopBar() {
     if (!betterPlayerController!.controlsEnabled) {
       return const SizedBox();
     }
-
-    return Container(
-      child: (_controlsConfiguration.enableOverflowMenu)
-          ? AnimatedOpacity(
-              opacity: controlsNotVisible ? 0.0 : 1.0,
-              duration: _controlsConfiguration.controlsHideTime,
-              onEnd: _onPlayerHide,
-              child: Container(
-                height: _controlsConfiguration.controlBarHeight,
-                width: double.infinity,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+    return Align(
+      alignment: Alignment.topCenter,
+      child: AnimatedOpacity(
+        opacity: controlsNotVisible ? 0.0 : 1.0,
+        duration: _controlsConfiguration.controlsHideTime,
+        onEnd: _onPlayerHide,
+        child: SafeArea(
+          child: Container(
+            height: 80,
+            width: MediaQuery.of(context).size.width,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
                   children: [
-                    if (_controlsConfiguration.enablePip)
-                      _buildPipButtonWrapperWidget(
-                          controlsNotVisible, _onPlayerHide)
-                    else
-                      const SizedBox(),
-                    _buildMoreButton(),
+                    Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            "assets/loading_icon.png",
+                            scale: 12.0,
+                            fit: BoxFit.fitWidth,
+                            color: Colors.white,
+                          ),
+                          Image.asset(
+                            "assets/loading_icon.png",
+                            scale: 12.0,
+                            fit: BoxFit.fitWidth,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _controlsConfiguration.movieName,
+                          textAlign: TextAlign.start,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          _controlsConfiguration.directorsName,
+                          textAlign: TextAlign.start,
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ),
-            )
-          : const SizedBox(),
-    );
-  }
-
-  Widget _buildPipButton() {
-    return BetterPlayerMaterialClickableWidget(
-      onTap: () {
-        betterPlayerController!.enablePictureInPicture(
-            betterPlayerController!.betterPlayerGlobalKey!);
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Icon(
-          betterPlayerControlsConfiguration.pipMenuIcon,
-          color: betterPlayerControlsConfiguration.iconsColor,
+                Row(
+                  children: [
+                    _buildIosAirPlayButton(),
+                    _buildClosePlayerButton()
+                  ],
+                )
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildPipButtonWrapperWidget(
-      bool hideStuff, void Function() onPlayerHide) {
-    return FutureBuilder<bool>(
-      future: betterPlayerController!.isPictureInPictureSupported(),
-      builder: (context, snapshot) {
-        final bool isPipSupported = snapshot.data ?? false;
-        if (isPipSupported &&
-            _betterPlayerController!.betterPlayerGlobalKey != null) {
-          return AnimatedOpacity(
-            opacity: hideStuff ? 0.0 : 1.0,
-            duration: betterPlayerControlsConfiguration.controlsHideTime,
-            onEnd: onPlayerHide,
-            child: Container(
-              height: betterPlayerControlsConfiguration.controlBarHeight,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  _buildPipButton(),
-                ],
-              ),
+  Widget _buildIosAirPlayButton() {
+    if (!betterPlayerController!.controlsEnabled) {
+      return const SizedBox();
+    }
+
+    if (Platform.isAndroid) {
+      return const SizedBox();
+    }
+
+    return Container(
+      child: Stack(
+        children: [
+          Center(
+            child: Icon(
+              Icons.airplay_outlined,
+              color: Colors.white,
+              size: 26,
             ),
-          );
-        } else {
-          return const SizedBox();
-        }
-      },
+          ),
+          GestureDetector(
+            child: AirPlayRoutePickerView(
+              height: 48,
+              width: 48,
+              tintColor: Colors.transparent,
+              activeTintColor: Colors.transparent,
+              backgroundColor: Colors.transparent,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildMoreButton() {
-    return BetterPlayerMaterialClickableWidget(
-      onTap: () {
-        onShowMoreClicked();
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Icon(
-          _controlsConfiguration.overflowMenuIcon,
-          color: _controlsConfiguration.iconsColor,
+  Widget _buildClosePlayerButton() {
+    if (!betterPlayerController!.controlsEnabled) {
+      return const SizedBox();
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: InkWell(
+        onTap: () {
+          dispose();
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+        },
+        child: SvgPicture.asset(
+          "assets/close-button.svg",
+          semanticsLabel: "close.svg",
+          height: 24,
+          width: 24,
+          color: Colors.white,
+          placeholderBuilder: (context) => Icon(Icons.error_rounded),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlayPauseButton(VideoPlayerController controller) {
+    if (!betterPlayerController!.controlsEnabled || _wasLoading) {
+      return const SizedBox();
+    }
+
+    return Container(
+      alignment: Alignment.center,
+      child: AnimatedOpacity(
+        opacity: controlsNotVisible ? 0.0 : 1.0,
+        duration: _controlsConfiguration.controlsHideTime,
+        onEnd: _onPlayerHide,
+        child: InkWell(
+          onTap: _onPlayPause,
+          child: Icon(
+            controller.value.isPlaying ? Icons.pause : Icons.play_arrow_rounded,
+            color: _controlsConfiguration.iconsColor,
+            size: MediaQuery.of(context).size.width * .088,
+          ),
         ),
       ),
     );
@@ -302,20 +316,10 @@ class _BetterPlayerMaterialControlsState
         opacity: controlsNotVisible ? 0.0 : 1.0,
         duration: _controlsConfiguration.controlsHideTime,
         onEnd: _onPlayerHide,
-        child: Container(
-          height: _controlsConfiguration.controlBarHeight + 30.0,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.transparent, Colors.black],
-              stops: [0, 0.99],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
+        child: SafeArea(
           child: Container(
+            height: 70,
             width: MediaQuery.of(context).size.width,
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -334,13 +338,8 @@ class _BetterPlayerMaterialControlsState
                         width: MediaQuery.of(context).size.width * .12,
                         child: Row(
                           children: [
-                            if (_controlsConfiguration.enablePlayPause)
-                              _buildPlayPause(_controller!)
-                            else
-                              const SizedBox(),
-                            const Spacer(),
                             if (_controlsConfiguration.enableMute)
-                              _buildMuteButton(_controller)
+                              _buildVolumeButton(_controller)
                             else
                               const SizedBox(),
                           ],
@@ -351,6 +350,32 @@ class _BetterPlayerMaterialControlsState
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVolumeButton(VideoPlayerController? controller) {
+    return InkWell(
+      onTap: () {
+        cancelAndRestartTimer();
+        changeVolumeSliderControlsNotVisible(!volumeSliderNotVisible);
+      },
+      child: AnimatedOpacity(
+        opacity: controlsNotVisible ? 0.0 : 1.0,
+        duration: _controlsConfiguration.controlsHideTime,
+        child: ClipRect(
+          child: Container(
+            height: _controlsConfiguration.controlBarHeight,
+            margin: const EdgeInsets.only(left: 8, top: 4),
+            child: Icon(
+              (_latestValue != null && _latestValue!.volume > 0)
+                  ? Icons.volume_up_sharp
+                  : _controlsConfiguration.unMuteIcon,
+              color: _controlsConfiguration.iconsColor,
+              size: 32,
             ),
           ),
         ),
@@ -375,6 +400,43 @@ class _BetterPlayerMaterialControlsState
     );
   }
 
+  Widget _buildVolumeSlider() {
+    return Positioned(
+      height: MediaQuery.of(context).size.height * .4,
+      bottom: MediaQuery.of(context).size.height * .16,
+      left: MediaQuery.of(context).size.width * .004,
+      child: SafeArea(
+        child: AnimatedOpacity(
+          opacity: volumeSliderNotVisible ? 0.0 : 1.0,
+          duration: _controlsConfiguration.controlsHideTime,
+          child: RotatedBox(
+            quarterTurns: 3,
+            child: Container(
+              alignment: Alignment.centerLeft,
+              width: MediaQuery.of(context).size.width * .20,
+              decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(8)),
+              child: Slider(
+                value: _latestVolume,
+                min: 0,
+                max: 1.0,
+                inactiveColor: Colors.grey.withOpacity(0.6),
+                activeColor: Colors.white,
+                onChanged: (volume) {
+                  _betterPlayerController!.setVolume(volume);
+                  _latestVolume = _betterPlayerController!
+                      .videoPlayerController!.value.volume;
+                  setState(() {});
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _showSubtitlesListModal() {
     if (subtitleModalNotVisible) {
       return Container();
@@ -386,7 +448,8 @@ class _BetterPlayerMaterialControlsState
           null;
       if (!noneSubtitlesElementExists) {
         subtitles.add(BetterPlayerSubtitlesSource(
-            type: BetterPlayerSubtitlesSourceType.none));
+          type: BetterPlayerSubtitlesSourceType.none,
+        ));
       }
 
       return Positioned(
@@ -465,6 +528,88 @@ class _BetterPlayerMaterialControlsState
     return subtitleOptions;
   }
 
+  Widget _buildProgressBar() {
+    return Expanded(
+      flex: 40,
+      child: Container(
+        alignment: Alignment.bottomCenter,
+        margin: const EdgeInsets.only(left: 8, right: 16),
+        child: BetterPlayerMaterialVideoProgressBar(
+          _controller,
+          _betterPlayerController,
+          onDragStart: () {
+            _hideTimer?.cancel();
+          },
+          onDragEnd: () {
+            _startHideTimer();
+          },
+          onTapDown: () {
+            cancelAndRestartTimer();
+          },
+          colors: BetterPlayerProgressColors(
+              playedColor: _controlsConfiguration.progressBarPlayedColor,
+              handleColor: _controlsConfiguration.progressBarHandleColor,
+              bufferedColor: _controlsConfiguration.progressBarBufferedColor,
+              backgroundColor:
+                  _controlsConfiguration.progressBarBackgroundColor),
+        ),
+      ),
+    );
+  }
+
+  Widget? _buildLoadingWidget() {
+    if (_controlsConfiguration.loadingWidget != null) {
+      return Container(
+        color: _controlsConfiguration.controlBarColor,
+        child: _controlsConfiguration.loadingWidget,
+      );
+    }
+
+    return CircularProgressIndicator(
+      valueColor:
+          AlwaysStoppedAnimation<Color>(_controlsConfiguration.loadingColor),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    final errorBuilder =
+        _betterPlayerController!.betterPlayerConfiguration.errorBuilder;
+    if (errorBuilder != null) {
+      return errorBuilder(
+          context,
+          _betterPlayerController!
+              .videoPlayerController!.value.errorDescription);
+    } else {
+      final textStyle = TextStyle(color: _controlsConfiguration.textColor);
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.warning,
+              color: _controlsConfiguration.iconsColor,
+              size: 42,
+            ),
+            Text(
+              _betterPlayerController!.translations.generalDefaultError,
+              style: textStyle,
+            ),
+            if (_controlsConfiguration.enableRetry)
+              TextButton(
+                onPressed: () {
+                  _betterPlayerController!.retryDataSource();
+                },
+                child: Text(
+                  _betterPlayerController!.translations.generalRetry,
+                  style: textStyle.copyWith(fontWeight: FontWeight.bold),
+                ),
+              )
+          ],
+        ),
+      );
+    }
+  }
+
   Widget _buildHitAreaClickableButton(
       {Widget? icon, required void Function() onClicked}) {
     return Container(
@@ -521,154 +666,6 @@ class _BetterPlayerMaterialControlsState
           _onPlayPause();
         }
       },
-    );
-  }
-
-  Widget _buildMuteButton(
-    VideoPlayerController? controller,
-  ) {
-    return BetterPlayerMaterialClickableWidget(
-      onTap: () {
-        cancelAndRestartTimer();
-        changeVolumeSliderControlsNotVisible(!volumeSliderNotVisible);
-      },
-      child: AnimatedOpacity(
-        opacity: controlsNotVisible ? 0.0 : 1.0,
-        duration: _controlsConfiguration.controlsHideTime,
-        child: ClipRect(
-          child: Container(
-            height: _controlsConfiguration.controlBarHeight,
-            margin: const EdgeInsets.only(left: 8, top: 4),
-            child: Icon(
-              (_latestValue != null && _latestValue!.volume > 0)
-                  ? Icons.volume_up_sharp
-                  : _controlsConfiguration.unMuteIcon,
-              color: _controlsConfiguration.iconsColor,
-              size: MediaQuery.of(context).orientation == Orientation.portrait
-                  ? 114
-                  : 30,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildVolumeSlider() {
-    return Positioned(
-      height: MediaQuery.of(context).size.height * .4,
-      bottom: MediaQuery.of(context).size.height * .16,
-      left: MediaQuery.of(context).size.width * .1,
-      child: AnimatedOpacity(
-        opacity: volumeSliderNotVisible ? 0.0 : 1.0,
-        duration: _controlsConfiguration.controlsHideTime,
-        child: RotatedBox(
-          quarterTurns: 3,
-          child: Container(
-            alignment: Alignment.centerLeft,
-            width: MediaQuery.of(context).size.width * .20,
-            decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(8)),
-            child: Slider(
-              value: _latestVolume,
-              min: 0,
-              max: 1.0,
-              inactiveColor: Colors.grey.withOpacity(0.6),
-              activeColor: Colors.white,
-              onChanged: (volume) {
-                _betterPlayerController!.setVolume(volume);
-                _latestVolume = _betterPlayerController!
-                    .videoPlayerController!.value.volume;
-                setState(() {});
-              },
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildIosAirPlayButton() {
-    if (!betterPlayerController!.controlsEnabled) {
-      return const SizedBox();
-    }
-
-    if (Platform.isAndroid) {
-      return const SizedBox();
-    }
-
-    return Positioned(
-      top: MediaQuery.of(context).size.height * .02,
-      right: MediaQuery.of(context).size.width * .024,
-      child: AnimatedOpacity(
-        opacity: controlsNotVisible ? 0.0 : 1.0,
-        duration: _controlsConfiguration.controlsHideTime,
-        onEnd: _onPlayerHide,
-        child: Container(
-          child: Stack(
-            children: [
-              Icon(Icons.airplay_outlined, color: Colors.white),
-              AirPlayRoutePickerView(
-                height: 48,
-                width: 48,
-                tintColor: Colors.transparent,
-                activeTintColor: Colors.transparent,
-                backgroundColor: Colors.transparent,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPlayPause(VideoPlayerController controller) {
-    return BetterPlayerMaterialClickableWidget(
-      key: const Key("better_player_material_controls_play_pause_button"),
-      onTap: _onPlayPause,
-      child: Container(
-        height: double.infinity,
-        alignment: Alignment.centerLeft,
-        child: Icon(
-          controller.value.isPlaying ? Icons.pause : Icons.play_arrow_rounded,
-          color: _controlsConfiguration.iconsColor,
-          size: MediaQuery.of(context).size.width * .045,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPosition() {
-    final position =
-        _latestValue != null ? _latestValue!.position : Duration.zero;
-    final duration = _latestValue != null && _latestValue!.duration != null
-        ? _latestValue!.duration!
-        : Duration.zero;
-
-    return Padding(
-      padding: _controlsConfiguration.enablePlayPause
-          ? const EdgeInsets.only(right: 24)
-          : const EdgeInsets.symmetric(horizontal: 22),
-      child: RichText(
-        text: TextSpan(
-            text: BetterPlayerUtils.formatDuration(position),
-            style: TextStyle(
-              fontSize: 10.0,
-              color: _controlsConfiguration.textColor,
-              decoration: TextDecoration.none,
-            ),
-            children: <TextSpan>[
-              TextSpan(
-                text: ' / ${BetterPlayerUtils.formatDuration(duration)}',
-                style: TextStyle(
-                  fontSize: 10.0,
-                  color: _controlsConfiguration.textColor,
-                  decoration: TextDecoration.none,
-                ),
-              )
-            ]),
-      ),
     );
   }
 
@@ -731,11 +728,16 @@ class _BetterPlayerMaterialControlsState
     }
   }
 
+  void _onPlayerHide() {
+    _betterPlayerController!.toggleControlsVisibility(!controlsNotVisible);
+    widget.onControlsVisibilityChanged(!controlsNotVisible);
+  }
+
   void _startHideTimer() {
     if (_betterPlayerController!.controlsAlwaysVisible) {
       return;
     }
-    _hideTimer = Timer(const Duration(milliseconds: 3000), () {
+    _hideTimer = Timer(const Duration(milliseconds: 7000), () {
       changePlayerControlsNotVisible(true);
     });
   }
@@ -757,78 +759,32 @@ class _BetterPlayerMaterialControlsState
     }
   }
 
-  Widget _buildProgressBar() {
-    return Expanded(
-      flex: 40,
-      child: Container(
-        alignment: Alignment.bottomCenter,
-        margin: const EdgeInsets.only(left: 8, right: 16),
-        child: BetterPlayerMaterialVideoProgressBar(
-          _controller,
-          _betterPlayerController,
-          onDragStart: () {
-            _hideTimer?.cancel();
-          },
-          onDragEnd: () {
-            _startHideTimer();
-          },
-          onTapDown: () {
-            cancelAndRestartTimer();
-          },
-          colors: BetterPlayerProgressColors(
-              playedColor: _controlsConfiguration.progressBarPlayedColor,
-              handleColor: _controlsConfiguration.progressBarHandleColor,
-              bufferedColor: _controlsConfiguration.progressBarBufferedColor,
-              backgroundColor:
-                  _controlsConfiguration.progressBarBackgroundColor),
-        ),
-      ),
-    );
+  @override
+  void dispose() {
+    _dispose();
+    super.dispose();
   }
 
-  void _onPlayerHide() {
-    _betterPlayerController!.toggleControlsVisibility(!controlsNotVisible);
-    widget.onControlsVisibilityChanged(!controlsNotVisible);
+  void _dispose() {
+    _controller?.removeListener(_updateState);
+    _hideTimer?.cancel();
+    _initTimer?.cancel();
+    _showAfterExpandCollapseTimer?.cancel();
+    _controlsVisibilityStreamSubscription?.cancel();
   }
 
-  Widget _buildReturnButton() {
-    if (!betterPlayerController!.controlsEnabled) {
-      return const SizedBox();
+  @override
+  void didChangeDependencies() {
+    final _oldController = _betterPlayerController;
+    _betterPlayerController = BetterPlayerController.of(context);
+    _controller = _betterPlayerController!.videoPlayerController;
+    _latestValue = _controller!.value;
+
+    if (_oldController != _betterPlayerController) {
+      _dispose();
+      _initialize();
     }
 
-    return Positioned(
-      top: MediaQuery.of(context).size.height * .05,
-      left: MediaQuery.of(context).size.width * .026,
-      child: AnimatedOpacity(
-        opacity: controlsNotVisible ? 0.0 : 1.0,
-        duration: _controlsConfiguration.controlsHideTime,
-        onEnd: _onPlayerHide,
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          child: InkWell(
-            onTap: () {
-              dispose();
-              Navigator.of(context).pop();
-              Navigator.of(context).pop();
-            },
-            child: Icon(Icons.arrow_back_ios, size: 28, color: Colors.white),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget? _buildLoadingWidget() {
-    if (_controlsConfiguration.loadingWidget != null) {
-      return Container(
-        color: _controlsConfiguration.controlBarColor,
-        child: _controlsConfiguration.loadingWidget,
-      );
-    }
-
-    return CircularProgressIndicator(
-      valueColor:
-          AlwaysStoppedAnimation<Color>(_controlsConfiguration.loadingColor),
-    );
+    super.didChangeDependencies();
   }
 }

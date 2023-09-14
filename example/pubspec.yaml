@@ -16,6 +16,7 @@ dependencies:
   path_provider: ^2.0.10
   visibility_detector: ^0.3.3
   collection: ^1.16.0
+  flutter_svg:
 
 dev_dependencies:
   flutter_test:

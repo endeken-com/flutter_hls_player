@@ -11,6 +11,7 @@ enum ImageUtilsOptions {
   ICON_LOGO_PNG,
   LOGO_FILME_SVG,
   STEPS_AUTH_PNG,
+  CLOSE_BUTTON
 }
 
 const Map<ImageUtilsOptions, String> ImageUtilsSelection = {
@@ -20,4 +21,5 @@ const Map<ImageUtilsOptions, String> ImageUtilsSelection = {
   ImageUtilsOptions.FULLSCREEN_ICON_SVG: 'assets/fullscreen.svg',
   ImageUtilsOptions.VOLUME_HIGH_ICON_SVG: 'assets/volume-high.svg',
   ImageUtilsOptions.VOLUME_MUTE_ICON_SVG: 'assets/volume-mute.svg',
+  ImageUtilsOptions.CLOSE_BUTTON: 'assets/close-button.svg',
 };

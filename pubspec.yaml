@@ -33,15 +33,6 @@ dev_dependencies:
     sdk: flutter
 
 flutter:
-  plugin:
-    platforms:
-      android:
-        package: com.jhomlala.better_player
-        pluginClass: BetterPlayerPlugin
-      ios:
-        pluginClass: BetterPlayerPlugin
-
-
   assets:
     - assets/fullscreen.svg
     - assets/subtitles.svg
@@ -51,3 +42,16 @@ flutter:
     - assets/forward-10-seconds.svg
     - assets/volume-high.svg
     - assets/volume-mute.svg
+    - assets/close-button.svg
+    - assets/logo_filmefilme.svg
+    - assets/loading_icon.png
+
+  plugin:
+    platforms:
+      android:
+        package: com.jhomlala.better_player
+        pluginClass: BetterPlayerPlugin
+      ios:
+        pluginClass: BetterPlayerPlugin
+
+

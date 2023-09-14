@@ -5,15 +5,29 @@ import 'package:flutter/material.dart';
 ///UI configuration of Better Player. Allows to change colors/icons/behavior
 ///of controls. Used in BetterPlayerConfiguration. Configuration applies only
 ///for player displayed in app, not in notification or PiP mode.
+
 class BetterPlayerControlsConfiguration {
-  ///Color of the control bars
+
+  /// Movie name on top of the controls
+  final String movieName;
+
+  /// Director`s name on top of the controls
+  final String directorsName;
+
+  /// Function after player closes
+  final Function()? onPlayerCloses;
+
+  /// Color of the control bars
   final Color controlBarColor;
 
-  ///Color of texts
+  /// Color of texts
   final Color textColor;
 
-  ///Color of icons
+  /// Color of icons
   final Color iconsColor;
+
+  ///
+  final Widget closeButtonIcon;
 
   ///Icon of play
   final IconData playIcon;
@@ -173,8 +187,12 @@ class BetterPlayerControlsConfiguration {
     this.fullscreenDisableIcon = Icons.fullscreen_exit_outlined,
     this.skipBackIcon = Icons.replay_10_outlined,
     this.skipForwardIcon = Icons.forward_10_outlined,
+    this.directorsName = "",
+    this.movieName = "",
+    this.onPlayerCloses = null,
     this.enableFullscreen = true,
     this.enableMute = true,
+    this.closeButtonIcon = const Text("X"),
     this.enableProgressText = true,
     this.enableProgressBar = true,
     this.enableProgressBarDrag = true,
