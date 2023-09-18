@@ -98,8 +98,9 @@ class _BetterPlayerMaterialControlsState
           BetterPlayerMultipleGestureDetector.of(context)!.onLongPress?.call();
         }
       },
-      child: AbsorbPointer(
-        absorbing: controlsNotVisible,
+      child: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -115,6 +116,24 @@ class _BetterPlayerMaterialControlsState
                     gradient: LinearGradient(
                       colors: [Colors.black, Colors.transparent],
                       stops: [0, 0.90],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.center,
+              child: AnimatedOpacity(
+                opacity: controlsNotVisible ? 0.0 : 0.1,
+                duration: _controlsConfiguration.controlsHideTime,
+                child: Container(
+                  height: _controlsConfiguration.controlBarHeight + 180.0,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.transparent, Colors.transparent],
+                      stops: [0, 0.01],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                     ),

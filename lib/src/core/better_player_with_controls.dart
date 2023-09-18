@@ -295,8 +295,11 @@ class _BetterPlayerVideoFitWidgetState
   Widget build(BuildContext context) {
     if (_initialized && _started) {
       return InteractiveViewer(
-        maxScale: 1.2,
+        maxScale: 1.22,
         minScale: 1.0,
+        alignPanAxis: true,
+        panEnabled: false,
+        boundaryMargin: EdgeInsets.all(0),
         child: Center(
           child: ClipRect(
             child: Container(
