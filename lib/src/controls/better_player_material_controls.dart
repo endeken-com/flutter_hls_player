@@ -111,7 +111,7 @@ class _BetterPlayerMaterialControlsState
                 opacity: controlsNotVisible ? 0.0 : 0.8,
                 duration: _controlsConfiguration.controlsHideTime,
                 child: Container(
-                  height: _controlsConfiguration.controlBarHeight + 60.0,
+                  height: _controlsConfiguration.controlBarHeight + 20.0,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [Colors.black, Colors.transparent],
@@ -124,19 +124,29 @@ class _BetterPlayerMaterialControlsState
               ),
             ),
             Align(
-              alignment: Alignment.center,
+              alignment: Alignment.centerRight,
               child: AnimatedOpacity(
-                opacity: controlsNotVisible ? 0.0 : 0.1,
+                opacity: controlsNotVisible ? 0.0 : 0.8,
                 duration: _controlsConfiguration.controlsHideTime,
                 child: Container(
-                  height: _controlsConfiguration.controlBarHeight + 180.0,
+                  height: 260,
+                  width: 150,
                   decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.transparent, Colors.transparent],
-                      stops: [0, 0.01],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
+                    color: Colors.transparent,
+                  ),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: AnimatedOpacity(
+                opacity: controlsNotVisible ? 0.0 : 0.8,
+                duration: _controlsConfiguration.controlsHideTime,
+                child: Container(
+                  height: 260,
+                  width: 150,
+                  decoration: const BoxDecoration(
+                    color: Colors.transparent,
                   ),
                 ),
               ),
